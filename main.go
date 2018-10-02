@@ -3,19 +3,39 @@ package main
 import (
 	"log"
 	//"./limiter"
-	"./pool"
+	"tutorials/concurrent-limiter/pool"
+
+	"math/rand"
 )
 
-var jobs = []string{"apple", "pear", "orange", "banana", "mango", "grapes", "kiwi"}
+const WORKER_COUNT = 5
+const JOB_COUNT = 100
 
-const WORKER_COUNT = 3
+var letterRunes = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
+
+func RandStringRunes(n int) string {
+    b := make([]rune, n)
+    for i := range b {
+        b[i] = letterRunes[rand.Intn(len(letterRunes))]
+    }
+    return string(b)
+}
+
+func CreateJobs(amount int) []string {
+	log.Println("creating jobs...")
+	var jobs []string
+
+	for i := 0; i < amount; i++ {
+		jobs = append(jobs, RandStringRunes(8))
+	}
+	return jobs
+}
 
 func main() {
 	log.Println("starting application...")
 	collector := pool.StartDispatcher(WORKER_COUNT) // start up worker pool
 
-	for i, job := range jobs {
-		collector <-pool.Work{Job: job, ID: i}
+	for i, job := range CreateJobs(JOB_COUNT) {
+		collector.Work <-pool.Work{Job: job, ID: i}
 	}
-	
 }	

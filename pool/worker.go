@@ -2,8 +2,7 @@ package pool
 
 import (
 	"log"
-	"hash/fnv"	
-	"time"
+	"tutorials/concurrent-limiter/job"
 )
 
 // worker struct
@@ -22,10 +21,7 @@ func (w *Worker) Start() {
 			select {
 			case work := <-w.Channel:
 				// do work
-				h := fnv.New32a()
-				h.Write([]byte(work.Job))
-				time.Sleep(time.Second)
-				log.Printf("worker [%d] - created hash [%d] from word [%s]\n", w.ID, h.Sum32(), work.Job)
+				job.DoWork(work.Job, w.ID)
 			case <-w.End:
 				return 
 			}
@@ -35,5 +31,6 @@ func (w *Worker) Start() {
 
 // end worker
 func (w *Worker) Stop() {
+	log.Printf("worker [%d] is stopping", w.ID)
 	w.End <- true
 }
