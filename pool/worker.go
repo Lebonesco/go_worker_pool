@@ -2,10 +2,14 @@ package pool
 
 import (
 	"log"
-	"tutorials/concurrent-limiter/job"
+	"tutorials/concurrent-limiter/work"
 )
 
-// worker struct
+type Work struct {
+	ID	int
+	Job string
+}
+
 type Worker struct {
 	ID int
 	WorkerChannel chan chan Work
@@ -19,9 +23,9 @@ func (w *Worker) Start() {
 		for {
 			w.WorkerChannel <-w.Channel
 			select {
-			case work := <-w.Channel:
+			case job := <-w.Channel:
 				// do work
-				job.DoWork(work.Job, w.ID)
+				work.DoWork(job.Job, w.ID)
 			case <-w.End:
 				return 
 			}
